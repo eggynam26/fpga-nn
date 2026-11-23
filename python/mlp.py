@@ -1,6 +1,7 @@
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 
@@ -13,8 +14,8 @@ print("y shape:", y.shape)
 print("first label:", y[0])
 print("first image values:", x[0])
 
-plt.imshow(digits.images[0], cmap='gray')
-plt.show()
+#plt.imshow(digits.images[0], cmap='gray')
+#plt.show()
 
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
@@ -24,3 +25,8 @@ print("x_train:", x_train.shape)
 print("x_test:", x_test.shape)
 print("y_train:", y_train.shape)
 print("y_test:", y_test.shape)
+
+
+x_train = x_train / 16.0
+x_test = x_test / 16.0
+print("x_train after normalization:", max(x_train[0]), "min:", min(x_train[0]))
