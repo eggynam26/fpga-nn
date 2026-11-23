@@ -1,2 +1,1 @@
-# fpga-nn
-me learning verilog
+#fpga-nn: low-latency neural network on FPGA Personal Project
