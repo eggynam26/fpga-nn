@@ -3,6 +3,8 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import numpy as np
 
+np.random.seed(0)
+
 
 
 digits = load_digits()
@@ -29,4 +31,17 @@ print("y_test:", y_test.shape)
 
 x_train = x_train / 16.0
 x_test = x_test / 16.0
-print("x_train after normalization:", max(x_train[0]), "min:", min(x_train[0]))
+
+W1 = np.random.randn(64, 32) * 0.1
+b1 = np.zeros(32)
+W2 = np.random.randn(32, 10) * 0.1
+b2 = np.zeros(10)
+
+def forward(x):
+    hidden = np.maximum(0, x @ W1 + b1)  # ReLU activation
+    return hidden @ W2 + b2  # Output layer (no activation for logits)
+
+
+scores = forward(x_test)
+pred = np.argmax(scores, axis=1)
+print(np.mean(pred == y_test))  # Print accuracy
