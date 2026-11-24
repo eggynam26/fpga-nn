@@ -21,10 +21,10 @@ print("first image values:", x[0])
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
 
 
-print("x_train:", x_train.shape)
-print("x_test:", x_test.shape)
-print("y_train:", y_train.shape)
-print("y_test:", y_test.shape)
+#print("x_train:", x_train.shape)
+#print("x_test:", x_test.shape)
+#print("y_train:", y_train.shape)
+#print("y_test:", y_test.shape)
 
 
 x_train = x_train / 16.0
@@ -37,10 +37,10 @@ b2 = np.zeros(10)
 
 def forward(x):
     hidden = np.maximum(0, x @ W1 + b1)  # ReLU activation
-    return hidden @ W2 + b2  # Output layer (no activation for logits)
+    return hidden, hidden @ W2 + b2  # Output layer (no activation for logits)
 
 
-scores = forward(x_test)
+hidden, scores = forward(x_test)
 pred = np.argmax(scores, axis=1)
 print(np.mean(pred == y_test))  # Print accuracy
 
@@ -53,7 +53,36 @@ def loss(probs, y):
     correct_logprobs = -np.log(probs[range(N), y])
     return np.sum(correct_logprobs) / N
 
+lr = 0.5
+N = x_train.shape[0]
 
-probs = softmax(forward(x_train))
-print(loss(probs, y_train))
-print(probs.sum(axis=1)[:5])
+for step in range(501):
+    # forward pass
+    hidden, scores = forward(x_train)
+    probs = softmax(scores)
+
+    # backward pass: how wrong, and how to nudge each parameter
+    dscores = probs.copy()
+    dscores[range(N), y_train] -= 1      # error at the output
+    dscores /= N                         # average over images
+
+    dW2 = hidden.T @ dscores
+    db2 = dscores.sum(axis=0)
+
+    dhidden = dscores @ W2.T             # send error back through W2
+    dhidden[hidden <= 0] = 0             # ReLU blocked these units
+
+    dW1 = x_train.T @ dhidden
+    db1 = dhidden.sum(axis=0)
+
+    # update: step each parameter downhill
+    W1 -= lr * dW1
+    b1 -= lr * db1
+    W2 -= lr * dW2
+    b2 -= lr * db2
+
+    if step % 50 == 0:
+        print(step, loss(probs, y_train))
+
+_, scores = forward(x_test)
+print("test accuracy:", np.mean(np.argmax(scores, axis=1) == y_test))
