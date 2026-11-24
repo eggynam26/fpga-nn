@@ -5,8 +5,6 @@ import numpy as np
 
 np.random.seed(0)
 
-
-
 digits = load_digits()
 x = digits.data
 y = digits.target
@@ -45,3 +43,17 @@ def forward(x):
 scores = forward(x_test)
 pred = np.argmax(scores, axis=1)
 print(np.mean(pred == y_test))  # Print accuracy
+
+def softmax(x):
+    e_x = np.exp(x - np.max(x, axis=1, keepdims=True))
+    return e_x / np.sum(e_x, axis=1, keepdims=True)
+
+def loss(probs, y):
+    N = y.shape[0]
+    correct_logprobs = -np.log(probs[range(N), y])
+    return np.sum(correct_logprobs) / N
+
+
+probs = softmax(forward(x_train))
+print(loss(probs, y_train))
+print(probs.sum(axis=1)[:5])
